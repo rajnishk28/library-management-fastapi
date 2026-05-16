@@ -1,0 +1,52 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+
+# Environment variables
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# SQLite database
+*.sqlite3
+*.db
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Python test/cache tools
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Runtime files
+*.pid
+*.seed
+
+# Ignore uploaded/generated files if needed
+uploads/
+media/
+staticfiles/
