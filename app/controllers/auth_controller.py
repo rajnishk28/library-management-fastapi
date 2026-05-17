@@ -25,9 +25,9 @@ def register_controller(user):
         )
         
     user_dict = user.dict()
-
     user_dict["password"] = hash_password(user.password)
     user_dict["active"] = True
+    user_dict["role"] = "user"  # always force "user" — never trust client-supplied role
 
     users_collection.insert_one(user_dict)
 

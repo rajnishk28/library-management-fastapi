@@ -91,6 +91,11 @@ def get_issues_controller(current_user):
     return [format_issue(issue) for issue in issues_collection.find(query)]
 
 
+def get_user_issues_controller(user_id):
+    """Admin-only: fetch all issues for a specific user."""
+    return [format_issue(issue) for issue in issues_collection.find({"user_id": user_id})]
+
+
 def update_issue_status_controller(issue_id, status_schema):
     """Admin-only: transition an issue to a new status."""
     issue = issues_collection.find_one({"_id": ObjectId(issue_id)})

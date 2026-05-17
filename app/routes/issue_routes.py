@@ -6,6 +6,7 @@ from app.controllers.issue_controller import (
     issue_book_controller,
     request_return_controller,
     get_issues_controller,
+    get_user_issues_controller,
     update_issue_status_controller,
     get_inventory_controller,
 )
@@ -29,6 +30,12 @@ def request_return(issue_id: str, user=Depends(verify_token)):
 @router.get("/inventory")
 def get_inventory(admin=Depends(admin_only)):
     return get_inventory_controller()
+
+
+@router.get("/user/{user_id}")
+def get_user_issues(user_id: str, admin=Depends(admin_only)):
+    """Admin: get all issues for a specific user."""
+    return get_user_issues_controller(user_id)
 
 
 @router.get("/")

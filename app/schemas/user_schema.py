@@ -1,17 +1,14 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr
 
 
 class UserRegister(BaseModel):
     name: str
     email: EmailStr
     password: str
-    role: str
+    # role is intentionally NOT accepted from the client.
+    # Public signup always creates a "user" role account.
+    # Admin accounts must be seeded directly in the database.
 
-    @field_validator("role")
-    def role_must_be_valid(cls, v):
-        if v not in ["user", "admin"]:
-            raise ValueError("Role must be either 'user' or 'admin'")
-        return v
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -20,3 +17,13 @@ class UserLogin(BaseModel):
 
 class UserStatusSchema(BaseModel):
     active: bool
+
+
+class UpdateProfileSchema(BaseModel):
+    name: str
+    email: EmailStr
+
+
+class ChangePasswordSchema(BaseModel):
+    current_password: str
+    new_password: str
