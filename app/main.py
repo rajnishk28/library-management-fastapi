@@ -1,17 +1,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import os
 from app.routes.auth_routes import router as auth_router
 from app.routes.book_routes import router as book_router
 from app.routes.user_routes import router as user_router
 from app.routes.issue_routes import router as issue_router
 from app.routes.stats_routes import router as stats_router
 
+load_dotenv()
+
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+# Read CORS allowed origins from environment variable
+cors_origins_str = os.getenv("CORS_ALLOWED_ORIGINS")
+origins = [origin.strip() for origin in cors_origins_str.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
