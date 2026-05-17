@@ -10,7 +10,7 @@ from app.utils.jwt_handler import create_access_token
 def register_controller(user):
 
     existing_user = users_collection.find_one({
-        "email": user.email
+        "email": user.email.lower()
     })
 
     if existing_user:
@@ -25,6 +25,7 @@ def register_controller(user):
         )
         
     user_dict = user.dict()
+    user_dict["email"] = user.email.lower()
     user_dict["password"] = hash_password(user.password)
     user_dict["active"] = True
     user_dict["role"] = "user"  # always force "user" — never trust client-supplied role
@@ -39,7 +40,7 @@ def register_controller(user):
 def login_controller(user):
 
     db_user = users_collection.find_one({
-        "email": user.email
+        "email": user.email.lower()
     })
 
     if not db_user:

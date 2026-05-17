@@ -130,7 +130,7 @@ def update_profile_controller(current_user, data):
     user_id = current_user["id"]
 
     # Check email uniqueness if changed
-    existing = users_collection.find_one({"email": data.email})
+    existing = users_collection.find_one({"email": data.email.lower()})
     if existing and str(existing["_id"]) != user_id:
         raise HTTPException(
             status_code=400,
@@ -139,7 +139,7 @@ def update_profile_controller(current_user, data):
 
     result = users_collection.update_one(
         {"_id": ObjectId(user_id)},
-        {"$set": {"name": data.name, "email": data.email}}
+        {"$set": {"name": data.name, "email": data.email.lower()}}
     )
 
     if result.matched_count == 0:
