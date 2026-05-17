@@ -1,19 +1,46 @@
 from app.models.user_model import users_collection
+from app.models.issue_model import issues_collection
 from bson import ObjectId
 from fastapi import HTTPException
 from app.utils.password_handler import hash_password, verify_password
 
 
-def get_users_controller():
+def get_users_controller(page: int = 1, limit: int = 10, search: str = None):
     """Return only non-admin users — admins are not shown in the member management list."""
-    users = []
+    skip = (page - 1) * limit
+    
+    # Build base filter (exclude admins)
+    filter_query = {"role": {"$ne": "admin"}}
+    
+    # Build search filter
+    if search and search.strip():
+        search_term = search.strip().lower()
+        filter_query["$and"] = [
+            {"role": {"$ne": "admin"}},
+            {
+                "$or": [
+                    {"name": {"$regex": search_term, "$options": "i"}},
+                    {"email": {"$regex": search_term, "$options": "i"}}
+                ]
+            }
+        ]
+    
+    total = users_collection.count_documents(filter_query)
+    total_pages = max(1, -(-total // limit))  # ceiling division
 
-    for user in users_collection.find({"role": {"$ne": "admin"}}):
+    users = []
+    for user in users_collection.find(filter_query).skip(skip).limit(limit):
         user["_id"] = str(user["_id"])
         del user["password"]
         users.append(user)
 
-    return users
+    return {
+        "items": users,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "total_pages": total_pages,
+    }
 
 
 def get_profile_controller(current_user):
@@ -87,12 +114,16 @@ def delete_user_controller(user_id, admin):
             detail="Cannot delete an admin account"
         )
 
+    # Delete all issues/book requests associated with the user
+    issues_collection.delete_many({"user_id": user_id})
+
+    # Delete the user
     result = users_collection.delete_one({"_id": ObjectId(user_id)})
 
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
 
-    return {"message": "User deleted successfully"}
+    return {"message": "User and all related data deleted successfully"}
 
 
 def update_profile_controller(current_user, data):

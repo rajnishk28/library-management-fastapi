@@ -16,17 +16,37 @@ def add_book_controller(book, current_user):
     }
 
 
-def get_books_controller():
+def get_books_controller(page: int = 1, limit: int = 10, search: str = None):
+
+    skip = (page - 1) * limit
+    
+    # Build search filter
+    filter_query = {}
+    if search and search.strip():
+        search_term = search.strip().lower()
+        filter_query = {
+            "$or": [
+                {"title": {"$regex": search_term, "$options": "i"}},
+                {"author": {"$regex": search_term, "$options": "i"}},
+                {"category": {"$regex": search_term, "$options": "i"}}
+            ]
+        }
+    
+    total = books_collection.count_documents(filter_query)
+    total_pages = max(1, -(-total // limit))  # ceiling division
 
     books = []
-
-    for book in books_collection.find():
-
+    for book in books_collection.find(filter_query).skip(skip).limit(limit):
         book["_id"] = str(book["_id"])
-
         books.append(book)
 
-    return books
+    return {
+        "items": books,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "total_pages": total_pages,
+    }
 
 
 def delete_book_controller(book_id):

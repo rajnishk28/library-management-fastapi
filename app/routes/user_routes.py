@@ -16,8 +16,13 @@ router = APIRouter()
 
 
 @router.get("/")
-def get_users(admin=Depends(admin_only)):
-    return get_users_controller()
+def get_users(
+    page: int = 1,
+    limit: int = 10,
+    search: str = None,
+    admin=Depends(admin_only)
+):
+    return get_users_controller(page=page, limit=limit, search=search)
 
 
 @router.get("/me")

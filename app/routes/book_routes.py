@@ -23,8 +23,13 @@ def add_book(
 
 
 @router.get("/")
-def get_books(user=Depends(verify_token)):
-    return get_books_controller()
+def get_books(
+    page: int = 1,
+    limit: int = 10,
+    search: str = None,
+    user=Depends(verify_token)
+):
+    return get_books_controller(page=page, limit=limit, search=search)
 
 
 @router.put("/{book_id}")
